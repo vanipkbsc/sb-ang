@@ -1,0 +1,18 @@
+apiVersion: tekton.dev/v1
+kind: TaskRun
+metadata:
+  name: git-clone-run
+spec:
+  taskRef:
+    name: git-clone
+  params:
+    - name: url
+      value: https://github.com/simeptk/sb-ang.git
+    - name: revision
+      value: main
+    - name: deleteExisting
+      value: "true"
+  workspaces:
+    - name: output
+      persistentVolumeClaim:
+        claimName: my-pvc

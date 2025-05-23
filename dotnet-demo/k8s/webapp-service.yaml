@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: helloworldwebapp-service
+  namespace: helloworldapp
+spec:
+  selector:
+    app: helloworldwebapp
+  ports:
+  - port: 80
+    targetPort: 80
+  type: ClusterIP  # Use ClusterIP for port-forwarding

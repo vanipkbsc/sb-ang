@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  backend:
+    build: ./sb-api
+    ports:
+      - "8080:8080"
+    container_name: sb-api
+  frontend:
+    build: ./angular-webapp
+    ports:
+      - "4200:80"
+    container_name: angular-webapp
+    depends_on:
+      - backend

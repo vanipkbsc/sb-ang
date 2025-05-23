@@ -1,0 +1,78 @@
+<div style="text-align:center">
+  <h1>
+    Welcome to {{ title }}!
+  </h1>
+</div>
+
+<hr/>
+
+@if (!showWeather) {
+  <h2>Application Information</h2>
+  @if (systemInfo) {
+    <ul>
+      <li>
+        <strong>Current Date & Time:</strong> {{ systemInfo.currentDateTime }}
+      </li>
+      <li>
+        <strong>Running Containerized:</strong> {{ systemInfo.isContainerized ? 'True' : 'False' }}
+      </li>
+      <li>
+        <strong>Hostname:</strong> {{ systemInfo.hostname }}
+      </li>
+      <li>
+        <strong>System Info:</strong> {{ systemInfo.systemInfo }}
+      </li>
+    </ul>
+  } @else if (errorMessage) {
+     <div style="color: red;">{{ errorMessage }}</div>
+  } @else {
+     <p>Loading system information...</p>
+  }
+
+  <hr/>
+
+  <h2>API Interaction</h2>
+  <p>
+      <button (click)="getWeather()">Click to See WeatherForecast</button>
+  </p>
+
+} @else {
+    <h2>Weather Forecast</h2>
+     @if (errorMessage) {
+        <div style="color: red;">{{ errorMessage }}</div>
+         <p><button (click)="goBackToInfo()">Back to Home</button></p>
+     } @else if (weatherData && weatherData.length > 0) {
+        <p>Data retrieved from the API:</p>
+        <table border="1" style="margin: auto;">
+           <thead>
+              <tr>
+                 <th>Date</th>
+                 <th>Temp. (C)</th>
+                 <th>Temp. (F)</th>
+                 <th>Summary</th>
+              </tr>
+           </thead>
+           <tbody>
+              @for (forecast of weatherData; track forecast.date) {
+                 <tr>
+                    <td>{{ forecast.date }}</td>
+                    <td>{{ forecast.temperatureC }}</td>
+                    <td>{{ forecast.temperatureF }}</td>
+                    <td>{{ forecast.summary }}</td>
+                 </tr>
+              }
+           </tbody>
+            <tfoot>
+                 <tr>
+                    <td colspan="4" style="text-align: center;">End of Weather Data</td>
+                </tr>
+            </tfoot>
+        </table>
+         <p><button (click)="goBackToInfo()">Back to Home</button></p>
+     } @else if (weatherData && weatherData.length === 0) {
+         <p>No weather data available.</p>
+          <p><button (click)="goBackToInfo()">Back to Home</button></p>
+     } @else {
+         <p>Loading weather data...</p>
+     }
+}

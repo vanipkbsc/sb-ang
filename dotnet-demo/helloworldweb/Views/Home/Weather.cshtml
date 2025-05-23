@@ -1,0 +1,64 @@
+@* Define the model for this view as an enumerable collection of WeatherForecast objects *@
+@model IEnumerable<helloworldweb.Controllers.WeatherForecast>
+@{
+    ViewData["Title"] = "Weather Forecast"; // Set the page title
+}
+
+<h1>Weather Forecast</h1>
+
+@* Check if an error message was set in ViewBag (e.g., if the API call failed) *@
+@if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+{
+    <div class="alert alert-danger mt-3" role="alert">
+       @ViewBag.ErrorMessage
+    </div>
+     <p>
+        @* Provide a link back to the home page *@
+        <a asp-controller="Home" asp-action="Index">Back to Home</a>
+    </p>
+}
+@* Check if the model is null or contains no data *@
+else if (Model == null || !Model.Any())
+{
+    <p>No weather data available.</p>
+     <p>
+        <a asp-controller="Home" asp-action="Index">Back to Home</a>
+    </p>
+}
+else
+{
+    <p>Data retrieved from the API:</p>
+
+    @* Display the weather data in a table *@
+    <table class="table table-striped table-bordered"> @* Using Bootstrap table classes *@
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Temp. (C)</th>
+                <th>Temp. (F)</th>
+                <th>Summary</th>
+            </tr>
+        </thead>
+        <tbody>
+            @* Iterate through the collection of WeatherForecast objects *@
+            @foreach (var forecast in Model)
+            {
+                <tr>
+                    <td>@forecast.Date.ToShortDateString()</td> @* Format the Date *@
+                    <td>@forecast.TemperatureC</td>
+                    <td>@forecast.TemperatureF</td>
+                    <td>@forecast.Summary</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+             <tr>
+                @* Footer row spanning all columns *@
+                <td colspan="4" class="text-center">End of Weather Data</td>
+            </tr>
+        </tfoot>
+    </table>
+     <p>
+        <a asp-controller="Home" asp-action="Index">Back to Home</a>
+    </p>
+}

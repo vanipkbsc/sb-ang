@@ -1,0 +1,43 @@
+kubectl get secret admin-user -n kubernetes-dashboard -o jsonpath="{.data.token}" | base64 -d
+kubectl -n kubernetes-dashboard port-forward svc/kubernetes-dashboard-kong-proxy 8443:443
+kubectl -n tekton-pipelines port-forward svc/tekton-dashboard 9097:9097
+
+==========================
+Setup Pipeline Namespace:
+kubectl apply --filename https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
+
+Setup Pipeline Dashboard:
+kubectl apply --filename https://storage.googleapis.com/tekton-releases/dashboard/latest/release.yaml
+
+Setup Kubernetes Dashboard:
+# Add kubernetes-dashboard repository
+helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
+# Deploy a Helm Release named "kubernetes-dashboard" using the kubernetes-dashboard chart
+helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard --create-namespace --namespace kubernetes-dashboard
+
+Some useful links
+
+For Kubernetes Dashboard:
+	• https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/
+
+For Token to access Kubernetes Dashboard:
+	• dashboard/docs/user/access-control/creating-sample-user.md at master · kubernetes/dashboard · GitHub
+
+For Tekton Pipeline Installation:
+	• https://tekton.dev/docs/dashboard/install/
+
+For triggers Setup:
+kubectl apply --filename \
+https://storage.googleapis.com/tekton-releases/triggers/latest/release.yaml
+kubectl apply --filename \
+https://storage.googleapis.com/tekton-releases/triggers/latest/interceptors.yaml
+
+=======================
+Learning Steps:
+https://tekton.dev/docs/getting-started/triggers/
+
+To Install tkn packages:
+https://docs.redhat.com/en/documentation/openshift_container_platform/4.9/html/cli_tools/pipelines-cli-tkn#installing-tkn
+
+Local Path Setup:
+kubectl apply -f https://raw.githubusercontent.com/rancher/local-path-provisioner/master/deploy/local-path-storage.yaml

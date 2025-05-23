@@ -1,0 +1,37 @@
+services:
+  api:
+    image: helloworldapi
+    build:
+      context: .
+      dockerfile: helloworldapi/Dockerfile
+    ports:
+      - "8080:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - DOTNET_RUNNING_IN_CONTAINER=true
+    networks:
+      - app-network
+    restart: always
+
+  webapp:
+    image: helloworldweb
+    build:
+      context: .
+      dockerfile: helloworldweb/Dockerfile
+    ports:
+      - "4200:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - DOTNET_RUNNING_IN_CONTAINER=true
+      - ApiBaseUrl=http://api:80  # Use HTTP and port 80 for internal container communication
+    depends_on:
+      - api
+    networks:
+      - app-network
+    restart: always
+
+networks:
+  app-network:
+    driver: bridge

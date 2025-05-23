@@ -1,0 +1,30 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "helloworldapi", "helloworldapi\helloworldapi.csproj", "{E5897A49-251D-D481-25C2-72F256AFAB13}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "helloworldweb", "helloworldweb\helloworldweb.csproj", "{4223EB7D-3952-72EF-499C-F0C935C17002}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E5897A49-251D-D481-25C2-72F256AFAB13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5897A49-251D-D481-25C2-72F256AFAB13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E5897A49-251D-D481-25C2-72F256AFAB13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E5897A49-251D-D481-25C2-72F256AFAB13}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4223EB7D-3952-72EF-499C-F0C935C17002}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4223EB7D-3952-72EF-499C-F0C935C17002}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4223EB7D-3952-72EF-499C-F0C935C17002}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4223EB7D-3952-72EF-499C-F0C935C17002}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4FB39C93-8F2D-421C-9F76-9382A3E02D7D}
+	EndGlobalSection
+EndGlobal

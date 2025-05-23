@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: helloworldwebapp
+  namespace: helloworldapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: helloworldwebapp
+  template:
+    metadata:
+      labels:
+        app: helloworldwebapp
+    spec:
+      containers:
+      - name: helloworldwebapp
+        image: helloworldweb:1.0.1
+        ports:
+        - containerPort: 80
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: Development
+        - name: ASPNETCORE_URLS
+          value: http://+:80
+        - name: DOTNET_RUNNING_IN_CONTAINER
+          value: "true"
+        - name: ApiBaseUrl
+          value: "http://helloworldapi-service:80"
+        resources:
+          limits:
+            cpu: "0.5"
+            memory: "512Mi"
+          requests:
+            cpu: "0.2"
+            memory: "256Mi"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 30

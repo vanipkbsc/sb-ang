@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: helloworldapi
+  namespace: helloworldapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: helloworldapi
+  template:
+    metadata:
+      labels:
+        app: helloworldapi
+    spec:
+      containers:
+      - name: helloworldapi
+        image: helloworldapi:1.0.1
+        ports:
+        - containerPort: 80
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: Development
+        - name: ASPNETCORE_URLS
+          value: http://+:80
+        - name: DOTNET_RUNNING_IN_CONTAINER
+          value: "true"
+        resources:
+          limits:
+            cpu: "0.5"
+            memory: "512Mi"
+          requests:
+            cpu: "0.2"
+            memory: "256Mi"
+        readinessProbe:
+          httpGet:
+            path: /weatherforecast
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 30

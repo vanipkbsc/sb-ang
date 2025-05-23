@@ -1,0 +1,201 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: dotnet-build-test-deploy
+  namespace: helloworldapp
+spec:
+  workspaces:
+    - name: shared-workspace
+    - name: docker-config
+  params:
+    - name: git-url
+      type: string
+      default: https://github.com/simeptk/sb-ang.git
+    - name: git-revision
+      type: string
+      default: main
+    - name: api-image
+      type: string
+      default: helloworldapi:latest
+    - name: webapp-image
+      type: string
+      default: helloworldwebapp:latest
+  tasks:
+    - name: clone-repo
+      taskRef:
+        name: git-clone
+      params:
+        - name: url
+          value: $(params.git-url)
+        - name: revision
+          value: $(params.git-revision)
+        - name: deleteExisting
+          value: "true"
+      workspaces:
+        - name: output
+          workspace: shared-workspace
+
+    - name: build-api
+      runAfter: [clone-repo]
+      taskRef:
+        name: buildah
+      params:
+        - name: IMAGE
+          value: $(params.api-image)
+        - name: CONTEXT
+          value: $(workspaces.source.path)/dotnet-demo/helloworldapi
+        - name: DOCKERFILE
+          value: $(workspaces.source.path)/dotnet-demo/helloworldapi/DockerfileApi
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+        - name: dockerconfig
+          workspace: docker-config
+
+    - name: build-webapp
+      runAfter: [clone-repo]
+      taskRef:
+        name: buildah
+      params:
+        - name: IMAGE
+          value: $(params.webapp-image)
+        - name: CONTEXT
+          value: $(workspaces.source.path)/dotnet-demo/helloworldweb
+        - name: DOCKERFILE
+          value: $(workspaces.source.path)/dotnet-demo/helloworldweb/DockerfileWebApp
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+        - name: dockerconfig
+          workspace: docker-config
+
+    - name: test-api
+      runAfter: [build-api]
+      taskSpec:
+        steps:
+          - name: test
+            image: mcr.microsoft.com/dotnet/sdk:8.0
+            workingDir: $(workspaces.source.path)/dotnet-demo/helloworldapi
+            script: |
+              dotnet test --no-build --verbosity normal
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+
+    - name: test-webapp
+      runAfter: [build-webapp]
+      taskSpec:
+        steps:
+          - name: test
+            image: mcr.microsoft.com/dotnet/sdk:8.0
+            workingDir: $(workspaces.source.path)/dotnet-demo/helloworldweb
+            script: |
+              dotnet test --no-build --verbosity normal
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+
+    - name: deploy-api
+      runAfter: [test-api]
+      taskRef:
+        name: kubectl-deploy
+      params:
+        - name: manifests
+          value: $(workspaces.source.path)/dotnet-demo/k8s/api-deployment.yaml,$(workspaces.source.path)/dotnet-demo/k8s/api-service.yaml
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+
+    - name: deploy-webapp
+      runAfter: [test-webapp]
+      taskRef:
+        name: kubectl-deploy
+      params:
+        - name: manifests
+          value: $(workspaces.source.path)/dotnet-demo/k8s/webapp-deployment.yaml,$(workspaces.source.path)/dotnet-demo/k8s/webapp-service.yaml
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+
+---
+# Task: buildah (for building/pushing images)
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: buildah
+  namespace: helloworldapp
+spec:
+  params:
+    - name: IMAGE
+      type: string
+    - name: CONTEXT
+      type: string
+    - name: DOCKERFILE
+      type: string
+  workspaces:
+    - name: source
+    - name: dockerconfig
+  steps:
+    - name: build
+      image: quay.io/buildah/stable:v1.35
+      securityContext:
+        privileged: true
+      script: |
+        buildah bud --format docker -f $(params.DOCKERFILE) -t $(params.IMAGE) $(params.CONTEXT)
+    - name: push
+      image: quay.io/buildah/stable:v1.35
+      securityContext:
+        privileged: true
+      env:
+        - name: DOCKER_CONFIG
+          value: $(workspaces.dockerconfig.path)
+      script: |
+        buildah push $(params.IMAGE) docker-daemon:$(params.IMAGE)
+
+---
+# Task: kubectl-deploy (for applying k8s manifests)
+apiVersion: tekton.dev/v1
+kind: Task
+metadata:
+  name: kubectl-deploy
+  namespace: helloworldapp
+spec:
+  params:
+    - name: manifests
+      type: string
+  workspaces:
+    - name: source
+  steps:
+    - name: kubectl-apply
+      image: bitnami/kubectl:latest
+      script: |
+        IFS=',' read -ra FILES <<< "$(params.manifests)"
+        for f in "${FILES[@]}"; do
+          kubectl apply -f "$f"
+        done
+
+---
+# PipelineRun Example
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: dotnet-build-test-deploy-run
+  namespace: helloworldapp
+spec:
+  pipelineRef:
+    name: dotnet-build-test-deploy
+  workspaces:
+    - name: shared-workspace
+      persistentVolumeClaim:
+        claimName: my-pvc
+    - name: docker-config
+      emptyDir: {}
+  params:
+    - name: git-url
+      value: https://github.com/simeptk/sb-ang.git
+    - name: git-revision
+      value: main
+    - name: api-image
+      value: helloworldapi:latest
+    - name: webapp-image
+      value: helloworldwebapp:latest

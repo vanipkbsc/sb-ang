@@ -1,0 +1,48 @@
+﻿@* Access the data passed from the HomeController's Index action via ViewBag *@
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+
+<hr/> @* Horizontal rule for separation *@
+
+<h2>Application Information</h2>
+@* Display the application details in an unordered list *@
+<ul>
+    <li>
+        @* Display the current date and time, formatted *@
+        <strong>Current Date & Time:</strong> @ViewBag.CurrentDateTime.ToString("yyyy-MM-dd HH:mm:ss")
+    </li>
+    <li>
+        @* Display whether the application is running containerized *@
+        <strong>Running Containerized:</strong> @(ViewBag.IsContainerized ? "True" : "False")
+    </li>
+    <li>
+        @* Display the hostname where the application is running *@
+        <strong>Hostname:</strong> @ViewBag.HostName
+    </li>
+    <li>
+        @* Display system information (OS and resource note) *@
+        <strong>System Info:</strong> @ViewBag.SystemInfo
+    </li>
+</ul>
+
+<hr/>
+
+<h2>API Interaction</h2>
+<p>
+    @* Create a link that, when clicked, navigates to the Weather action in the HomeController *@
+    <a asp-controller="Home" asp-action="Weather">Click to See WeatherForecast</a>
+</p>
+
+@* Display an error message if one is present in ViewBag (e.g., if API URL is not configured) *@
+@if (!string.IsNullOrEmpty(ViewBag.ErrorMessage))
+{
+    <div class="alert alert-danger mt-3" role="alert">
+       @ViewBag.ErrorMessage
+    </div>
+}
